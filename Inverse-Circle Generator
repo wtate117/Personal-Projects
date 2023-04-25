@@ -1,0 +1,76 @@
+/******************************************************************************
+
+This is a program to generate all the points on the perimeter of a circle to
+create Tangent lines and draw an inverse circle.
+
+Steps: you are welcome to change the r and e values in lines 34 and 35, just do
+not make them negative, please. Once you have set the r value, make sure the 
+language is C++ (top right corner) and hit the green "run" button at the top
+right of the screen.Then a black window with a bunch of equations should start
+iterating. Once it stops (should say "Program finished with exit code 0"),
+click the clipboard along the top of the black box where the equations are 
+(it should be next to a down arrow and two arrows pointing away from each other).
+Next go to 
+        https://www.desmos.com/calculator 
+and in the first equation line hit "Ctrl V" (or "Cmd V" if on a Mac). 
+Finally, pause for a moment to raise your expectations and watch as geometric
+life is created before you.
+
+*******************************************************************************/
+#include <iostream>
+using namespace std;
+#include <cmath>
+#include <iomanip>
+#include <fstream>  //for file writing
+
+int main()
+{
+    int p, e;
+    float x, a, r;
+    double d, y;
+    a = 0;
+    
+    
+    r = 10;  //because this is not yet interactive, this is the value you can change
+    e = 1;
+    
+    // making sure r and r are within their tolerances
+    if(r <= 0)
+        r = 1;
+    if(e < 1)
+        e = 1;
+    if(e >3)
+        e = 3;
+        
+    float i = 1*pow(10,-e) * r;
+    p = 1;  
+    cout << "x = " << r << endl;
+    cout << "x = " << -r << endl;
+  for(int g = 0; g <2; g++) {
+    // generate the points
+    for(int h = 0; h < 2; h++)
+    {
+        while(abs(a) < r)
+        {
+            // finding y
+            y = p*sqrt(r*r - a*a);
+            //finding the slope
+            d = -a*pow((r*r - a*a), -0.5);
+            //setting the equation
+            cout << p * d << "(x - " << a << ") + " << y << endl;
+            //increment a
+            a = a + i;
+        }
+        // generates the tangent lines touching the circle in the second quadrant
+        i = -i;
+        a = 0;
+    }
+    p = -1;  //should generate third and fourth quadrant tangent lines
+  }
+    return 7;
+}
+
+
+
+
+
