@@ -1,0 +1,395 @@
+  '''
+'''
+
+import random
+import array
+import openpyxl
+#import xlsxwriter
+
+####################### Start of Card Creation ###########################
+
+suit = ['A', 'H', 'D', 'S']
+OrderedCards = []
+
+i = 0
+n = 1
+while (i < len(suit)):
+
+    j = 1 #resetting j for each suit
+    while (j < 14):
+        if j < 10:
+            # briefly storing the new card as a string
+            nCard = suit[i] + '0' + str(j)
+            #inserting the nCard into the Card array
+            OrderedCards.append(nCard)
+            # print(OrderedCards[n])
+            j += 1
+            n += 1
+        else:
+            nCard = suit[i] + str(j)
+            OrderedCards.append(nCard)
+            # print(OrderedCards[n])
+            j += 1
+            n += 1
+        
+    i += 1
+####################### End of Card Creation ###########################   
+
+## creating excel document to use later, initializing column names
+CardGameData = openpyxl.Workbook()
+ScoreSheet = CardGameData.active
+cell1 = ScoreSheet.cell(1, 1)
+cell1.value = "Game Number"
+cell2 = ScoreSheet['B1']
+cell3 = ScoreSheet['C1']
+cell4 = ScoreSheet['D1']
+cell5 = ScoreSheet['E1']
+cell2.value = 'Number of Turns'
+cell3.value = 'Times Through Deck'
+cell4.value = 'Game Score'
+
+
+
+####################### Start of Card Shuffle, Fisher-Yates ###################
+
+# copying the ordered cards into a new array to shuffle
+i = 0
+ShuffledCards = OrderedCards
+
+for i in range(len(OrderedCards) - 1, 0, -1):
+    
+    j = random.randint(0, i+1)
+    
+    # swapping cards i and j
+    ShuffledCards[i], ShuffledCards[j] = ShuffledCards[j], ShuffledCards[i]
+    
+# creating a copy of ShuffledCards
+GameDeck = ShuffledCards
+
+# print(ShuffledCards)
+# print(len(ShuffledCards))
+
+
+# print function
+def printCards(CardsToPrint):
+    p = 1
+    while (p <= len(CardsToPrint)):
+        print(CardsToPrint[p-1], end = " | ")
+        if (p % 8 == 0):
+            print("\n")
+        p += 1
+    print("\n\n\n")
+
+#printCards(GameDeck)
+
+####################### End of Card Shuffle, Fisher-Yates ###################
+
+'''
+We start by creating the back to front method 
+    - start with the last card and check for matches in spots 50 (n-1) and 48 (n-3)
+    - start with preference based on number, then suit
+    - Write functions for forward 1, forward 3, back 1, back 3
+   
+    COMPLETE
+
+p is the position of gameCard
+k is the difference in position of gameCard and nextCard
+ - a positive k value means nextCard is closer to 1
+ - a negative k value means nextCard is closer to 51
+
+    COMPLETE
+
+h is the iterator on the search loop and is the place holder
+for the numbersToCheck array
+
+'''
+
+
+''' 
+- originally created after checkCard functions
+create a precedence hiearchy
+ - match number to number
+ - match suit to suit
+ - match 2 over
+ - match adjacent
+ 
+ - match forward 
+ - if we have trailing cards, and a match is made should the program go back to
+    to the end and start over -> kind of a bubble sort/quick sort 
+ 
+'''
+
+########################## Game Mechanics ################################
+
+
+numbersToCheck = [3, 1] #, -1, -3]
+h = 0
+
+# define array to house booleans to track precedences - try 2d, rows 0 and 1
+# columns should be suit check and number check
+precedenceTracker = [ [],[] ]
+
+#manully inserting a header
+precedenceTracker.insert(0, ["Split", "Suit Match", "Number Match"])
+
+
+
+precedenceLength = len(numbersToCheck)
+
+i=0
+while (i < precedenceLength):
+    precedenceTracker.insert(i+1, [numbersToCheck[i], 7, 8])
+    # print(precedenceTracker[i])
+    i+=1
+# print(precedenceTracker[4])
+
+
+#card check functions
+def checkCardSuit(gameCards, p, k, precedence, h):
+    #printCards(gameCards)
+    # nextCard is the n-1 card, gameCard is the current card to be played
+    gameCard = gameCards[p]
+    nextCard = gameCards[p-k]
+    
+    #print("Running check suit")
+    #print(gameCard, nextCard)
+    
+    if (gameCard[0] == nextCard[0]):
+        # print("The suits match")
+        precedence[h+1][1] = 1
+    else:
+        # print("The suits do not match")
+        precedence[h+1][1] = 0
+        
+
+# function to check if the number of the n-1 card matches 
+def checkCardNumber(gameCards, p, k, precedence, h):
+    #printCards(gameCards)
+    # nextCard is the n-1 card, gameCard is the current card to be played
+    gameCard = gameCards[p]
+    nextCard = gameCards[p-k]
+    
+    #print("Running check number")
+    #print(gameCard, nextCard)
+    
+    if (gameCard[1:3] == nextCard[1:3]):
+        #print("The numbers match")
+        precedence[h+1][2] = 1
+    else:
+        #print("The numbers do not match")
+        precedence[h+1][2] = 0
+
+
+
+'''
+
+This loop searches the 3, 1, -1, -3 cards 
+
+'''
+'''
+h = 0
+while (h < len(numbersToCheck)):
+    #print("\n", numbersToCheck[h])
+    checkCardNumber(GameDeck, 51, numbersToCheck[h], precedenceTracker, h)
+    checkCardSuit(GameDeck, 51, numbersToCheck[h], precedenceTracker, h)
+    h += 1
+'''
+
+'''
+The following prints the precedenceTracker table is a pleasent way
+
+Should this be turned into a function?
+'''
+def printPrecedenceTable(precedenceLength, precedenceTracker):
+    i = 0
+    j = 0
+    print("\n-----------------------------------------")
+    while (i < precedenceLength + 1):
+        while(j < 3):
+            if (i == 0):
+                print(precedenceTracker[i][j], end = "\t| ")
+            else:
+                print(precedenceTracker[i][j], end = " \t|\t ")
+            j+=1
+        print("\n-----------------------------------------")
+        j=0
+        i += 1
+    
+
+'''
+This function needs to pick what, if any, match will be made based on precedenceTracker
+'''
+
+
+'''
+
+the array size needs to decrease for every match that is made -> 
+    could len(array) still be used -> yes, pop and append
+
+
+# references
+# https://www.geeksforgeeks.org/python-ways-to-shuffle-a-list/
+
+'''
+
+
+'''
+Using the precedenceTracker to make a move decision
+
+
+4 points for a number match
+2 point for a suit match
+1 point for a match adjacent
+2 points for a match 2 ahead
+'''
+
+# works through the precedence table to decide what move to make, if any
+# need to add a line if len(gameDeck) <= 2
+def decideOnMove(precedence):
+    # matching number three spots ahead
+    nextMove = 0
+    if(precedence[1][2] == 1):
+        nextMove = precedence[1][0]
+
+    # matching number one spots ahead
+    elif (precedence[2][2] == 1):
+        nextMove = precedence[2][0]
+
+    
+    # matching suit three spots ahead
+    elif (precedence[1][1] == 1):
+        nextMove = precedence[1][0]
+    
+    elif (precedence[2][1] == 1):
+        nextMove = precedence[2][0]
+    
+    else:
+        nextMove = 7
+    
+    return nextMove
+    
+# this function is the actual mending of the array
+# the card is moved to the new position and the initial position is popped
+def makeNextMove(moveDist, gameDeck, p):
+    newP = p - moveDist
+    print("the length of the game deck is", len(gameDeck))
+    gameDeck[newP] = gameDeck[p]
+    gameDeck.pop(p)
+    printCards(gameDeck)
+    print("the new length of the game deck is", len(gameDeck))
+    
+
+'''play the game'''
+
+# setting the inital position to play from
+gamePosition=len(GameDeck) - 1
+
+print("Original Deck")
+printCards(GameDeck)
+i = 0
+j = 0
+g = 1 # this is the game number 
+noMoveCounter = 0
+movesSkipped = 0
+movesMade = 0
+timesThrough = 0
+while(i <= 5000):
+    
+    #print("start Game position:", gamePosition, "\n")
+    #print("\n New Move!\nThe playing card is: ", GameDeck[gamePosition], "\n")
+    printCards(GameDeck)
+    
+    h = len(numbersToCheck) - 1
+    while (h >= 0):
+        #print("\n", numbersToCheck[h])
+        checkCardNumber(GameDeck, gamePosition, numbersToCheck[h], precedenceTracker, h)
+        checkCardSuit(GameDeck, gamePosition, numbersToCheck[h], precedenceTracker, h)
+        # handling the two ahead issue
+        if(gamePosition < 3):
+            h = -1
+        h -= 1
+
+    
+    nextMoveDist = decideOnMove(precedenceTracker)
+    
+    
+    if(nextMoveDist != 7):
+        makeNextMove(nextMoveDist, GameDeck, gamePosition)
+        #print("\nA move was made\n")
+        movesMade += 1
+
+    else:
+        print("A move was not made\n")
+        noMoveCounter += 1
+        movesSkipped += 1
+        print("movesSkipped:", movesSkipped)
+    
+    
+    gamePosition -= 1
+    
+    #print("End Game position:", gamePosition, "\n")
+    i += 1
+    j += 1
+    
+
+    
+    if(noMoveCounter > 500 or len(GameDeck) == 1 or timesThrough == len(GameDeck) + 1):
+        i = 10000
+        
+    # resetting gamePosition to the end of the deck
+    if(gamePosition == 0):
+        gamePosition = len(GameDeck) - 1
+        print("we at the front")
+        if(movesSkipped == len(GameDeck) - 1):
+            timesThrough += 1
+        if(timesThrough == len(GameDeck)):
+            i = i * i
+        movesSkipped = 0
+
+print("Final deck")
+printCards(GameDeck)
+print("In", j, "turns, the game made", movesMade, "moves and skipped", 
+noMoveCounter, "turns, also, the game went through the deck", timesThrough, "times.\n")
+print("The final score for this round is: ", len(GameDeck))
+
+gameDataArray = [g, j, movesMade, timesThrough, len(GameDeck)]
+x = 0
+while(x < 5):
+    newValue = ScoreSheet.cell(g+1, x+1)
+    newValue.value = gameDataArray[x]
+    x +=1
+
+''' check cards loop
+h = 0https://www.onlinegdb.com/edit/jQ3Rrsem4q#tab-stdin
+while (h < len(numbersToCheck)):
+    #print("\n", numbersToCheck[h])
+    checkCardNumber(GameDeck, gamePosition, numbersToCheck[h], precedenceTracker, h)
+    checkCardSuit(GameDeck, gamePosition, numbersToCheck[h], precedenceTracker, h)
+    h += 1
+'''
+
+
+
+'''
+next steps 
+    - address looking ahead 3 spots when gamePosition < 3
+    - create method to loop back once gamePosition = 0 and keep iterating
+        until numSkips = len(gameDeck)
+'''
+
+'''writing the following to Excel:
+
+    - movesMade
+    - timesThrough
+    - len(gameDeck)
+    - noMoveCounter
+    -
+workbook.write(0, 0, 'Game Number')
+workbook.write(0, 1, 'Number of Turns')
+workbook.write(0, 2, 'Number of Skips')
+workbook.write(0 ,3, 'Times through Deck')
+workbook.write(0 ,4, 'Game Score')
+'''
+
+CardGameData.save("CardGameData.xlsx")
+
