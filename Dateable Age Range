@@ -1,0 +1,154 @@
+/*viable dating age range */
+
+
+#include <iostream>
+using namespace std;
+#include <stdlib.h>
+
+//makes sure yes or no questions have proper input
+void yesOrNo(char & answer)
+{
+    cout <<  "(y or n)\n >> ";
+    cin >> answer;
+    while(answer != 'y' && answer != 'n')
+    {
+        cout << "You goof! Please enter a valid response.\n>> ";
+        cin >> answer;
+    }
+}
+
+float lowerAgeRange(float age)
+{
+    float ageLower;
+    char answer2;
+    ageLower = (age / 2) + 7;
+    if(ageLower < 18 && age == 18)
+        cout << "The recommended lower age limit for you is " << ageLower << ". Based on your age may encounter some looks and negative feedback, however you are within the bounds of the law.\n";
+    else if(ageLower < 18)
+    {
+        cout << "The recommended lower age limit for you is " << ageLower << ".\n";
+        cout << "Please be informed: pursuit of such an interest is highly discouraged as it falls outside society's agreed upon moral and legal codes.\n ";
+        
+        cout << "\nHave you acknowledged the above statement and are ready to continue?\n>> ";
+        cin >> answer2;
+        while(answer2 != 'y')
+        {
+            cout << "Invalid input, try again. \n";
+            cin >> answer2;
+        }
+        cout << "Thank goodness. Now you may continue.\n";
+    }
+    else{
+        cout << "The recommended lower age limit for you is " << ageLower << ". This information in now yours. Contemplate carefully.\n";
+    }
+    return ageLower;
+}
+
+float upperAgeRange(float age)
+{
+    float ageUpper = (age - 7) * 2;
+    cout << "The recommended upper age you shoud remotely consider dating is " << ageUpper << ".\n";
+    return ageUpper;
+}
+
+
+void continueOrQuit(char & choice)
+{
+    yesOrNo(choice);
+    if (choice == 'y')
+        cout << "Wonderful, you may continue.";
+        
+    else
+    {
+        cout << "Oh well, you probably do not need this.\nGoodbye.\n";
+        exit(0);
+    }
+}
+
+void menu(float & age)
+{
+    char yorn;
+    cout << "Hello!\n";
+    cout << "Is there an extra reason for your exictment today?";
+    //yesOrNo(choice);
+    continueOrQuit(yorn);
+    cout << " In your efforts to escape simple arithmetic computations it appears Monsieur Haverford has provided you a tool.\n";
+    cout << "To begin, How old are you?\n>> ";
+    cin >> age;
+}
+
+
+void simplify(float lower, float current, float upper)
+{
+    cout << "For an individual of " << current << " years, the range of ages you may consider yourself eligible to date is contained in the interval [" << lower << ", " << upper << "].\n";
+    cout << "Id est, an indiviual who has been beaten down by the stress of work is typically between 26 and 65, therefore you would be ";
+    if((lower <= 59 && lower >= 26) || upper >= 26)
+        cout << "ELIGIBLE.\n";
+    else
+        cout << "INELIGIBLE.\n\n";
+}
+
+
+//we want to return the years until the user is in the age iterval of someone older than them
+void whatAgeOlder(float userAge)
+{
+    //this has to be declared before we assign values to our other variables
+    int ageOlder;
+    
+    cout << "What is the approximate age of the individual you are thinking about?\n>> ";
+    cin >> ageOlder;
+    
+    float ageOlderI = ageOlder;
+    float ageOlderLower;
+    int myAgeI = userAge;
+    float myAgeOlder;
+
+    //write a for loop to increment both ages and find the subsquent ranges
+    for(int m = 1; m < 50; m++)
+    {
+        ageOlderLower = (ageOlderI / 2) + 7;
+        //cout << m << endl;
+        //cout << "new ageOlderL: " << ageOlderLower << endl;
+        myAgeOlder = (myAgeI - 7) * 2;
+        //cout << "new myAgeOlder: " << myAgeOlder << endl;
+        if(ageOlderLower <= myAgeI && ageOlderI <= myAgeOlder)
+            m = 100;
+        else
+        {
+            myAgeI++;
+            ageOlderI++;
+        }
+    }
+    
+    int ageDifference = myAgeI - userAge;
+    //print results
+    if(myAgeI == userAge)
+        cout << "It appears you need not wait at all, congradulations!\n";
+    else
+        cout << "Monsieur Havorford offers his patience to you as it will be " 
+        << ageDifference << " years until it may be permissible for your stars to align.\nAt which point you will be " 
+        << myAgeI << " years of age and the one you ask about will be in their " << ageOlderI << "th year.\n";
+    
+}
+
+int main()
+{
+    float LowerAge, age, UpperAge;
+    
+    menu(age);
+    LowerAge = lowerAgeRange(age);
+    UpperAge = upperAgeRange(age);
+    
+    //simplify(LowerAge, age, UpperAge);
+    
+    whatAgeOlder(age);
+
+    return 0;
+}
+
+
+/* To add later - a check on if both people are in the other's iterval
+-whatAgeYounger - years before someone younger is in the users ranges
+*/
+
+
